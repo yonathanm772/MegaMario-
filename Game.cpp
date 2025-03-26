@@ -1,4 +1,5 @@
-#include "Game.h"
+
+*/*#include "Game.h"
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -605,6 +606,6 @@ void Game::spawnSpecialWeapon(const Vec2& mousePos)
 	// Set lifespan of the black hole
 	blackHole->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L * 5);
 }
-
+*/
 
 

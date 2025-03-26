@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 
 #include "Entity.h"
 #include "EntityManager.h"
@@ -46,6 +46,7 @@ class Game
 	void spawnSmallEnemies(std::shared_ptr<Entity> entity);
 	void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 &mousePos);
 	void spawnSpecialWeapon(const Vec2& mousePos);
+	Game();
 
 public:
 
@@ -54,4 +55,4 @@ public:
 
 	void run();
 
-};
+};*/

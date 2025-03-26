@@ -1,0 +1,12 @@
+C:\Users\yonat\source\repos\MegaMario\Action.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Action.obj
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Animation.obj
+C:\Users\yonat\source\repos\MegaMario\Assets.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Assets.obj
+C:\Users\yonat\source\repos\MegaMario\Entity.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Entity.obj
+C:\Users\yonat\source\repos\MegaMario\EntityManager.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\EntityManager.obj
+C:\Users\yonat\source\repos\MegaMario\GameEngine.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\GameEngine.obj
+C:\Users\yonat\source\repos\MegaMario\main.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\main.obj
+C:\Users\yonat\source\repos\MegaMario\Physics.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Physics.obj
+C:\Users\yonat\source\repos\MegaMario\Scene.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Scene.obj
+C:\Users\yonat\source\repos\MegaMario\Scene_Menu.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Scene_Menu.obj
+C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Scene_Play.obj
+C:\Users\yonat\source\repos\MegaMario\Vec2.cpp;C:\Users\yonat\source\repos\MegaMario\x64\Release\Vec2.obj

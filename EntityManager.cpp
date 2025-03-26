@@ -5,11 +5,11 @@
 
 EntityManager::EntityManager()
 {
-
 }
 
 void EntityManager::update()
 {
+
 	//  Adss entities from m_entitiesToAdd the proper location(s)
 	//	add them to the vector of all entities
 	//	add them to the vector inside the map, with the tag as a key

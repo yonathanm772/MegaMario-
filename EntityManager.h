@@ -6,16 +6,18 @@
 #include <memory>
 
 typedef std::vector<std::shared_ptr<Entity>> EntityVec;
-typedef std::map<std::string, EntityVec> EntityMap;
+//typedef std::map<std::string, EntityVec> EntityMap;
 
 class EntityManager
 {
 
-	EntityVec m_entities;
-	EntityVec m_entitiesToAdd;
-	EntityVec m_entitiesToDelete;
-	EntityMap m_entityMap;
-	size_t m_totalEntities = 0;
+	EntityVec							m_entities;
+	int count = 0;
+	EntityVec							m_entitiesToAdd;
+	//EntityVec					m_entitiesToDelete;
+	//EntityMap m_entityMap;
+	std::map<std::string, EntityVec>	m_entityMap;
+	size_t								m_totalEntities = 0;
 
 	void removeDeadEntities(EntityVec& vec);
 	void removeDeadEntitiesFromMap();

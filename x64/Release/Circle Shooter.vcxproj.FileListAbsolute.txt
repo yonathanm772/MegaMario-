@@ -1,1 +1,2 @@
 C:\Users\yonat\source\repos\Circle Shooter\x64\Release\Circle Shooter.exe
+C:\Users\yonat\source\repos\MegaMario\x64\Release\MegaMario.exe
