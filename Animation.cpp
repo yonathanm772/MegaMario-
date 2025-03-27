@@ -34,15 +34,15 @@ void Animation::update()
 	{
 		//add the speed variable to the current frame
 		m_gameFrame++;
-		std::cout << "+++++++++++++++++++++++++++ANIMATION+++++++++++++++++++++ "<< m_gameFrame << "\n";
+		/*std::cout << "+++++++++++++++++++++++++++ANIMATION+++++++++++++++++++++ " << m_gameFrame << "\n";
 		std::cout << "FRAME COUNT BEFORE " << m_frameCount << "\n";
 		std::cout << "FRAME COUNT AFTER " << m_frameCount << "\n";
 		std::cout << "SPEED AFTER " << m_speed << "\n";
 		std::cout << "TEXTURE SIZE X " << m_size.x << "\n";
-		std::cout << "TEXTURE SIZE Y " << m_size.y << "\n";
+		std::cout << "TEXTURE SIZE Y " << m_size.y << "\n";*/
 		
 		m_currentFrame = (m_gameFrame / m_speed) % m_frameCount;
-		std::cout << "CURRENT FRAME " << m_currentFrame << "\n";
+		//std::cout << "CURRENT FRAME " << m_currentFrame << "\n";
 		m_sprite.setTextureRect(sf::IntRect(std::floor(m_currentFrame) * m_size.x, 0, m_size.x, m_size.y));
 	}    
 	//m_currentFrame += m_speed;
@@ -52,9 +52,9 @@ void Animation::update()
 
 bool Animation::hasEnded() const
 {
-	/* TODO: Detect when animation has ended (last frame was played) and return true
+	//TODO: Detect when animation has ended (last frame was played) and return true
 	if (m_currentFrame == m_frameCount)
-		return true;*/
+		return true;
 	return false;
 }
 

@@ -96,11 +96,12 @@ public:
 class CState : public Component
 {
 public:
-	std::string state = "jumping";
+	//std::string state = "air";
+	std::string state = "running";
 	bool isGrounded = false;
 	bool isRunning = false;
-	CState() {}
-	CState(std::string &s) : state(s) {}
+	CState() = default;
+	CState(const std::string &s) : state(s) {}
 };
 
 

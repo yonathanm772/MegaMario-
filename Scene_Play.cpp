@@ -147,7 +147,7 @@ void Scene_Play::spawnPlayer()
 	m_player->addComponent<CTransform>(gridToMidPixel(m_playerConfig.X, m_playerConfig.Y, m_player));
 	m_player->addComponent<CBoundingBox>(Vec2(m_playerConfig.CX, m_playerConfig.CY));
 	m_player->addComponent<CGravity>(m_playerConfig.GRAVITY);
-	m_player->addComponent<CState>();
+	m_player->addComponent<CState>("stand");
 	m_player->addComponent<CInput>();
 
 }
@@ -165,10 +165,10 @@ void Scene_Play::SpawnBullet(std::shared_ptr<Entity> entity)
 		auto& boundingBox = entity->getComponent<CBoundingBox>();
 
 		b->addComponent<CAnimation>(m_game->assets().getAnimation("Buster"), true);
-		b->addComponent<CTransform>(Vec2(transform.pos.x, transform.pos.y), Vec2(transform.lastDirection * 10,0));
+		b->addComponent<CTransform>(Vec2(transform.pos.x, transform.pos.y), Vec2(transform.scale.x * 10,0));
 		b->addComponent<CBoundingBox>(Vec2(boundingBox.size.x, boundingBox.size.y));
 
-		b->getComponent<CTransform>().lastDirection = transform.lastDirection;
+		b->getComponent<CTransform>().scale = transform.scale;
 
 	}
 	
@@ -209,11 +209,11 @@ void Scene_Play::sMovement()
 
 	if (input.up && state.isGrounded)
 	{
-		//m_player->getComponent<CState>().state = "run";
-		
+		std::cout << "++++++++++++INSIDE UP++++++++++\n";
+		std::cout << state.isGrounded <<"\n";
+		//state.state = "jumping";
 		newVelocity.y -= m_playerConfig.SPEED;
-		//input.up = false;
-		//state.state = "run";
+		
 	}
 	if (input.down)
 	{
@@ -222,14 +222,18 @@ void Scene_Play::sMovement()
 	}
 	if (input.left)
 	{
+		//m_player->getComponent<CState>().state = "air";
+
 		newVelocity.x -= m_playerConfig.SPEED;
+		if (state.isGrounded) state.state = "running";
 	}
 	if (input.right)
 	{
-		
+		//m_player->getComponent<CState>().state = "air";
 		newVelocity.x += m_playerConfig.SPEED;
+		if (state.isGrounded) state.state = "running";
 
-		/*std::cout << "++++++++++++INSIDE RIGHT++++++++++\n";
+		/*std::cout << "++++++++++++INSIDE RIGHT++++++++++\n";a
 		std::cout << state.isGrounded <<"\n";
 		if (state.isGrounded) { state.state = "running"; }
 		std::cout << "++++++++++++INSIDE AFTER++++++++++\n";
@@ -238,9 +242,13 @@ void Scene_Play::sMovement()
 
 	if (newVelocity.y <= m_playerConfig.JUMP)
 	{
+		
 		newVelocity.y = m_playerConfig.JUMP;
 		state.isGrounded = false;
-		state.state = "air";
+		//std::cout << "++++++++++++INSIDE+++++++++++\n";
+		//std::cout << state.isGrounded << "\n";
+		//state.isGrounded = false;
+		//state.state = "air";
 	}
 	else if (newVelocity.y >= m_playerConfig.MAXSPEED)
 	{
@@ -249,26 +257,33 @@ void Scene_Play::sMovement()
 
 	transform.velocity = newVelocity;
 
+	if (state.isGrounded && std::abs(newVelocity.x) < 0.01f)
+	{
+		state.state = "standing";
+	}
+
 	for (auto e : m_entityManager.getEntities())
 	{
 		auto& transformE = e->getComponent<CTransform>();
 		auto& sprite = e->getComponent<CAnimation>().animation.getSprite();
-		float scaleX = std::abs(sprite.getScale().x);
+		//float scaleX = std::abs(sprite.getScale().x);
 
-			if (transformE.velocity.x > 0 && transformE.lastDirection != 1)
+			if (transformE.velocity.x > 0 && transformE.scale.x != 1)//transformE.lastDirection != 1)
 			{
 				
-				transformE.lastDirection = 1;
-				sprite.setScale(scaleX, sprite.getScale().y);  // Face right
-				std::cout << "++++++++++++INSIDE FLIPPING++++++++++\n";
-				std::cout << sprite.getScale().x << "\n";
+				//transformE.lastDirection = 1;
+				//sprite.setScale(scaleX, sprite.getScale().y);  // Face right
+				transformE.scale.x = 1;
+				sprite.setScale(transformE.scale.x, transformE.scale.y);
+			
 			}
-			else if (transformE.velocity.x < 0 && transformE.lastDirection != -1)
+			else if (transformE.velocity.x < 0 && transformE.scale.x != -1)//transformE.lastDirection != -1)
 			{
-				transformE.lastDirection = -1;
-				sprite.setScale(-scaleX, sprite.getScale().y); // Face left
-				std::cout << "++++++++++++INSIDE FLIPPING++++++++++\n";
-				std::cout << sprite.getScale().x << "\n";
+				//transformE.lastDirection = -1;
+				//sprite.setScale(-scaleX, sprite.getScale().y); // Face left
+				transformE.scale.x = -1;
+				sprite.setScale(transformE.scale.x, transformE.scale.y);
+				
 			}
 
 			if (e->hasComponent<CGravity>())
@@ -281,77 +296,6 @@ void Scene_Play::sMovement()
 		transformE.pos += transformE.velocity;
 
 	}
-	/*for (auto e : m_entityManager.getEntities())
-	{
-		if (e->hasComponent<CGravity>() && e->getComponent<CState>().state == "jumping")
-		{
-			std::cout << "++++++++++++E VELOCITY ++++++++++\n";
-			std::cout << e->getComponent<CTransform>().velocity.y << "\n";
-			std::cout << "++++++++++++MAX VELOCITY ++++++++++\n";
-			std::cout << m_playerConfig.JUMP << "\n";
-
-			if (e->getComponent<CTransform>().velocity.y <= m_playerConfig.JUMP)
-			{
-				e->getComponent<CTransform>().velocity.y = m_playerConfig.JUMP;
-			}
-			else if (e->getComponent<CTransform>().velocity.y >= m_playerConfig.MAXSPEED)
-			{
-				e->getComponent<CTransform>().velocity.y = m_playerConfig.MAXSPEED;
-			}
-			else 
-			{
-				std::cout << "++++++++++++ADJUSTING VELOCITY ++++++++++\n";
-				e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
-				std::cout << e->getComponent<CTransform>().velocity.x <<"\n";
-				std::cout << e->getComponent<CTransform>().velocity.y << "\n";
-			}
-				
-		}
-		e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
-		e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
-	}*/
-	
-
-	/* for testing jumping
-	for (auto e : m_entityManager.getEntities())
-	{
-		if (e->hasComponent<CGravity>())
-		{
-			
-			e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;b 
-		}
-		e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
-	}*/
-
-	/*
-	my old example
-	for (auto e : m_entityManager.getEntities())
-	{
-		if (e->hasComponent <CGravity>()>)
-		{
-			e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
-			e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
-
-			// maybe
-			if (e->getComponent<CTransform>().velocity.x > MAX_SPEED ||
-				e->getComponent<CTransform>().velocity.y > MAX_SPEED)
-			{
-				e->getComponent<CTransform>().velocity.x = MAX_SPEED;
-				e->getComponent<CTransform>().velocity.y = MAX_SPEED;
-			}
-			//if the player is moving faster than max speed in any direction,
-
-			// set its speed in that direction to the max speed.
-			// when landing somewhere, reset player's yVelocity to 0, so that gravity has to start all
-			// all over again
-		}
-		
-	}
-
-	// TODO: Implement player movement / jumping based on its CInput component 
-	// TODO: Implement player gravity's effect on the player
-	// TODO: Implement the maximum player speed in both X and Y directions
-	// NOTE: Setting an entity's scale.x to -1/1 will make it face to the left/right*/
 }
 
 void Scene_Play::sLifespan()
@@ -372,55 +316,57 @@ void Scene_Play::sCollision()
 	{
 		if (e->tag() == "player")
 		{
+			bool isColliding = false;  // Track if the player collides with any tile
+			auto& transform = e->getComponent<CTransform>();
+			auto& state = e->getComponent<CState>();
+
 			for (auto t : m_entityManager.getEntities("tile"))
 			{
 				Physics physics;
 				Vec2 overlap = physics.getOverlap(e, t);
 				Vec2 prevOverlap = physics.getPreviousOverlap(e, t);
-				if (overlap.x > 0 && overlap.y)
+
+				if (overlap.x > 0 && overlap.y > 0)  // Ensure valid collision
 				{
-					if (prevOverlap.y > 0 && e->getComponent<CTransform>().prevPos.x > t->getComponent<CTransform>().prevPos.x)
+					isColliding = true;  // Player is colliding with at least one tile
+
+					// Handle different collision directions
+					if (prevOverlap.y > 0 && transform.prevPos.x > t->getComponent<CTransform>().prevPos.x)
 					{
-						e->getComponent<CTransform>().pos.x += overlap.x;
+						transform.pos.x += overlap.x;
 					}
-					else if (prevOverlap.y > 0 && e->getComponent<CTransform>().prevPos.x < t->getComponent<CTransform>().prevPos.x)
+					else if (prevOverlap.y > 0 && transform.prevPos.x < t->getComponent<CTransform>().prevPos.x)
 					{
-						e->getComponent<CTransform>().pos.x -= overlap.x;
+						transform.pos.x -= overlap.x;
 					}
-					else if (prevOverlap.x > 0 && e->getComponent<CTransform>().prevPos.y < t->getComponent<CTransform>().prevPos.y)
+					else if (prevOverlap.x > 0 && transform.prevPos.y < t->getComponent<CTransform>().prevPos.y)
 					{
-
-						e->getComponent<CTransform>().pos.y -= overlap.y;
-						
-
-						e->getComponent<CTransform>().velocity.y = 0;
-
-						e->getComponent<CState>().isGrounded = true;
-						//e->getComponent<CState>().state = "standing";
-						std::cout << "**************CURRENT STATE COLLISION**************\n";
-						std::cout << e->getComponent<CState>().state << "\n";
-						/*if (e->getComponent<CState>().state != "running")
-						{
-							e->getComponent<CState>().state = "standing";
-							std::cout << "**************CURRENT STATE**************\n";
-							std::cout << e->getComponent<CState>().state << "\n";
-						}*/
-						
-
+						transform.pos.y -= overlap.y;
+						transform.velocity.y = 0;
+						state.isGrounded = true;
+						e->getComponent<CInput>().canJump = true;
 					}
-					else if (prevOverlap.x > 0 && e->getComponent<CTransform>().prevPos.y > t->getComponent<CTransform>().prevPos.y)
+					else if (prevOverlap.x > 0 && transform.prevPos.y > t->getComponent<CTransform>().prevPos.y)
 					{
-
-						e->getComponent<CTransform>().pos.y += overlap.y;
-
-						e->getComponent<CTransform>().velocity.y = 0;
-						//e->getComponent<CState>().state = "air";
+						transform.pos.y += overlap.y;
+						transform.velocity.y = 0;
+						t->getComponent<CAnimation>().repeat = false;
+						t->getComponent<CAnimation>().animation.hasEnded();
 					}
 				}
-				
 			}
-			
+
+			// If the player is NOT colliding with anything, set the state to "jumping"
+			if (!isColliding)
+			{
+				state.state = "jumping";
+			}
+			// If the player is on the ground AND not moving, set the state to "standing"
+
+			std::cout << "**************CURRENT STATE**************\n";
+			std::cout << state.state << "\n";
 		}
+
 		if (e->tag() == "bullet")
 		{
 				for (auto t : m_entityManager.getEntities("tile"))
@@ -464,14 +410,11 @@ void Scene_Play::sDoAction(const Action& action)
 		else if (action.name() == "TOGGLE_GRID")		{ m_drawGrid = !m_drawGrid; }
 		else if (action.name() == "PAUSE")				{ setPaused(!m_paused); }
 		else if (action.name() == "QUIT")				{ onEnd(); }
-		else if (action.name() == "JUMP" && m_player->getComponent<CState>().isGrounded)
+		else if (action.name() == "JUMP")
 		{
-				 std::cout << "++++++++++++++++++STATE********************\n";
-				 std::cout << m_player->getComponent<CState>().state
-					 << " ++++++++++++++++++STATE********************\n";
 
 			m_player->getComponent<CInput>().up = true;
-			m_player->getComponent<CState>().state = "air";
+			m_player->getComponent<CInput>().canJump = false;
 	
 		}
 		else if (action.name() == "DOWN")
@@ -482,19 +425,22 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 
 				m_player->getComponent<CInput>().left = true;
-				if (m_player->getComponent<CState>().isGrounded)
+				m_player->getComponent<CState>().isRunning = true;
+				/*if (m_player->getComponent<CState>().isGrounded)
 				{
 					m_player->getComponent<CState>().state = "running";
-				}
+				}*/
 		}
 		else if (action.name() == "RIGHT")
 		{	
-
+				 
 				 m_player->getComponent<CInput>().right = true;
-				 if (m_player->getComponent<CState>().isGrounded)
+				 m_player->getComponent<CState>().isRunning = true;
+				 //m_player->getComponent<CState>().state = "air";
+				 /*if (m_player->getComponent<CState>().isGrounded)
 				 {
 					 m_player->getComponent<CState>().state = "running";
-				 }
+				 }*/
 		}
 		else if (action.name() == "BUSTER")
 		{
@@ -507,7 +453,7 @@ void Scene_Play::sDoAction(const Action& action)
 		if (action.name() == "JUMP")
 		{
 			m_player->getComponent<CInput>().up = false;
-			m_player->getComponent<CState>().state = "air";
+			//m_player->getComponent<CState>().state = "air";
 		}
 		else if (action.name() == "DOWN")
 		{
@@ -515,19 +461,21 @@ void Scene_Play::sDoAction(const Action& action)
 		}
 		else if (action.name() == "LEFT")
 		{
+			m_player->getComponent<CState>().isRunning = false;
 			m_player->getComponent<CInput>().left = false;
-			if (m_player->getComponent<CState>().isGrounded && !m_player->getComponent<CInput>().right)
+			/*if (m_player->getComponent<CState>().isGrounded && !m_player->getComponent<CInput>().right)
 			{
 				m_player->getComponent<CState>().state = "standing";
-			}
+			}*/
 		}
 		else if (action.name() == "RIGHT")
 		{
+			m_player->getComponent<CState>().isRunning = false;
 			m_player->getComponent<CInput>().right = false;
-			if (m_player->getComponent<CState>().isGrounded && !m_player->getComponent<CInput>().left)
+			/*if (m_player->getComponent<CState>().isGrounded && !m_player->getComponent<CInput>().left)
 			{
 				m_player->getComponent<CState>().state = "standing";
-			}
+			}*/
 		}
 		else if (action.name() == "BUSTER")
 		{
@@ -540,40 +488,60 @@ void Scene_Play::sAnimation()
 { 
 	// Store the current scale
 	auto& currentAnimation = m_player->getComponent<CAnimation>().animation;
+	auto& state = m_player->getComponent<CState>();
+	auto& input = m_player->getComponent<CInput>();
 	sf::Vector2f currentScale = currentAnimation.getSprite().getScale();
-
-	// TODO: Complete the Animation class code first
-	if (m_player->getComponent<CState>().state == "air")
+	if (state.state == "jumping"
+		&& !input.canJump )
 	{
-		// Override the animation
-		m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Air"), true);
-		// Restore the scale after setting the new animation
-		m_player->getComponent<CAnimation>().animation.getSprite().setScale(currentScale);
-	}
-	else if (m_player->getComponent<CState>().state == "standing")
-	{
-		// Override the animation
-		m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
-
-		// Restore the scale after setting the new animation
-		m_player->getComponent<CAnimation>().animation.getSprite().setScale(currentScale);
-	}
-	else if (m_player->getComponent<CState>().state == "running")
-	{
-		m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Run"),true);
+		if (currentAnimation.getName() != "Air")
+		{
+			currentAnimation = m_game->assets().getAnimation("Air");
+		}
 		//add the speed variable to the current frame
-		auto &animation = m_player->getComponent<CAnimation>();
-		std::cout << "FRAME COUNT BEFORE " << animation.animation.getFrameCount() << "\n";
-		std::cout << "SPEED AFTER " << animation.animation.getSpeed() << "\n";
-		std::cout << "TEXTURE SIZE X " << animation.animation.getSize().x << "\n";
-		std::cout << "TEXTURE SIZE Y " << animation.animation.getSize().y << "\n";
+		//std::cout << "FRAME COUNT BEFORE " << animation.animation.getFrameCount() << "\n";
+		//std::cout << "SPEED AFTER " << animation.animation.getSpeed() << "\n";
+		//std::cout << "TEXTURE SIZE X " << animation.animation.getSize().x << "\n";
+		//std::cout << "TEXTURE SIZE Y " << animation.animation.getSize().y << "\n";
+	}
+	else if (state.state == "running")
+	{
+		if (currentAnimation.getName() != "Run")
+		{
+			currentAnimation = m_game->assets().getAnimation("Run");
+		}
+		//add the speed variable to the current frame
+		//std::cout << "FRAME COUNT BEFORE " << animation.animation.getFrameCount() << "\n";
+		//std::cout << "SPEED AFTER " << animation.animation.getSpeed() << "\n";
+		//std::cout << "TEXTURE SIZE X " << animation.animation.getSize().x << "\n";
+		//std::cout << "TEXTURE SIZE Y " << animation.animation.getSize().y << "\n";
+	}
+	else if(state.state == "standing")
+	{
+		if (currentAnimation.getName() != "Stand")
+		{
+			currentAnimation = m_game->assets().getAnimation("Stand");
+		}
+		//add the speed variable to the current frame
 	}
 
 	for (auto e : m_entityManager.getEntities())
 	{
 		if (e->getComponent<CAnimation>().has)
 		{
-			e->getComponent<CAnimation>().animation.update();
+			if (!e->getComponent<CAnimation>().repeat)
+			{
+				if (e->getComponent<CAnimation>().animation.getName() == "Question")
+				{
+					e->addComponent<CAnimation>(m_game->assets().getAnimation("Question2"), true);
+				}
+				else
+					e->destroy();
+				
+				
+			}
+			else
+				e->getComponent<CAnimation>().animation.update();
 		}
 	}
 	//TODO: set the animation of the player based on its CState component
@@ -613,23 +581,26 @@ void Scene_Play::sRender()
 			if (e->hasComponent<CAnimation>())
 			{
 				auto& animation = e->getComponent<CAnimation>().animation;
+				float scaleX, scaleY, currentXScale, currentYScale;
 					// If the entity has a bounding box, fit the texture to it
 				if (e->hasComponent<CBoundingBox>())
 				{
 					auto& boundingBox = e->getComponent<CBoundingBox>();
-					sf::Vector2u textureSize = animation.getSprite().getTexture()->getSize();
+					sf::Vector2u textureSize (animation.getSize().x, animation.getSize().y);
+					scaleX = boundingBox.size.x / textureSize.x;
+					scaleY = boundingBox.size.y / textureSize.y;
 
-					float scaleX = boundingBox.size.x / textureSize.x;
-					float scaleY = boundingBox.size.y / textureSize.y;
-
-					float currentXScale = animation.getSprite().getScale().x > 0 ? 1.0f : -1.0f; // Preserve left/right direction
-					animation.getSprite().setScale(scaleX * currentXScale, scaleY);
+					currentXScale = animation.getSprite().getScale().x; // Preserve left/right direction
+					currentYScale = animation.getSprite().getScale().y;
+					float directionX = transform.scale.x;
+					animation.getSprite().setScale(scaleX* directionX, scaleY);
 
 					
 				}
-
+				
 				animation.getSprite().setRotation(transform.angle);
 				animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+				//animation.getSprite().setScale(transform.scale.x, transform.scale.y);
 				m_game->window().draw(animation.getSprite());
 			}
 		}
@@ -643,34 +614,17 @@ void Scene_Play::sRender()
 		{
 			if (e->hasComponent<CBoundingBox>())
 			{
-				if (e->tag() == "player")
-				{
-
-					auto& box = e->getComponent<CBoundingBox>();
-					auto& transform = e->getComponent < CTransform>();
-					sf::RectangleShape rect;
-					rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
-					rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
-					rect.setPosition(transform.pos.x, transform.pos.y);
-					rect.setFillColor(sf::Color(0, 0, 0, 0));
-					rect.setOutlineColor(sf::Color(255, 255, 255, 255));
-					rect.setOutlineThickness(1);
-					m_game->window().draw(rect);
-				}
-				else
-				{
-					auto& box = e->getComponent<CBoundingBox>();
-					auto& transform = e->getComponent < CTransform>();
-					sf::RectangleShape rect;
-					rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
-					rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
-					rect.setPosition(transform.pos.x, transform.pos.y);
-					rect.setFillColor(sf::Color(0, 0, 0, 0));
-					rect.setOutlineColor(sf::Color(255, 255, 255, 255));
-					rect.setOutlineThickness(1);
-					m_game->window().draw(rect);
-				}
-					
+				
+				auto& box = e->getComponent<CBoundingBox>();
+				auto& transform = e->getComponent < CTransform>();
+				sf::RectangleShape rect;
+				rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
+				rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
+				rect.setPosition(transform.pos.x, transform.pos.y);
+				rect.setFillColor(sf::Color(0, 0, 0, 0));
+				rect.setOutlineColor(sf::Color(255, 255, 255, 255));
+				rect.setOutlineThickness(1);
+				m_game->window().draw(rect);
 				
 			}
 
@@ -709,5 +663,5 @@ void Scene_Play::sRender()
 	}
 	m_game->window().display();
 }
-// seems to work but if i press A or D while holding W, jmping stops until released
+// fix running, and jumpin along with their animations.
 

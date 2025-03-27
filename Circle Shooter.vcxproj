@@ -167,6 +167,9 @@
     <ClCompile Include="Scene_Play.cpp" />
     <ClCompile Include="Vec2.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

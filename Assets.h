@@ -20,7 +20,8 @@ public:
 	Assets();
 	~Assets();
 	void addTexture(std::string& name, std::string& path, bool wantRepeated = false);
-	void addAnimation(std::string& name, Animation& animation);
+	void addAnimation(std::string& name, const std::string& texture, const size_t& frames, const size_t& speed);
+	//void addAnimation(std::string& name, Animation& animation);
 	//void addSound(std::string &name, std::string &path);
 	void addFont(std::string& name, std::string& path);
 

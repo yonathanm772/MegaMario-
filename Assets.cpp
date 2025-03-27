@@ -25,9 +25,9 @@ void Assets::addTexture(std::string& name, std::string& path, bool wantRepeated)
     }
 }
 
-void Assets::addAnimation(std::string& name, Animation& animation)
+void Assets::addAnimation(std::string& name, const std::string& texture, const size_t& frames, const size_t& speed)
 {
-
+    this->m_animationsMap[name] = Animation(name, m_texturesMap.at(texture),frames, speed);
 }
 
 void Assets::addFont(std::string& name, std::string& path)
@@ -84,9 +84,9 @@ void Assets::loadFromFile(const std::string& path)
         }
         else if (assetType == "Animation") {
             fin >> asset >> animationTex >> animationFrameCount >> animationSpeed;
-            Animation animation(asset, m_texturesMap.at(animationTex), animationFrameCount, animationSpeed);
-            m_animationsMap.insert({ asset,animation });
-
+            //Animation animation(asset, m_texturesMap.at(animationTex), animationFrameCount, animationSpeed);
+            //m_animationsMap.insert({ asset,animation });
+            addAnimation(asset, animationTex, animationFrameCount, animationSpeed);
             //std::cout << "Loaded Animation:" << assetPath << "\n";
         }
         else if (assetType == "Font") {
