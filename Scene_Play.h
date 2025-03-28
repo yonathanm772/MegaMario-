@@ -14,6 +14,10 @@ class Scene_Play : public Scene
 		std::string WEAPON;
 	};
 
+	struct EnemyConfig {
+		float X, Y, CX, CY, SPEED, MAXSPEED, GRAVITY;
+	};
+
 
 
 protected:
@@ -21,6 +25,7 @@ protected:
 	std::shared_ptr<Entity>		m_player;
 	std::string					m_levelPath;
 	PlayerConfig				m_playerConfig;
+	EnemyConfig					m_enemyConfig;
 	bool						m_drawTextures = true;
 	bool						m_drawCollision = false;
 	bool						m_drawGrid = false;
@@ -33,6 +38,8 @@ protected:
 	void loadLevel(const std::string& filename);
 
 	void spawnPlayer();
+
+	void spawnEnemy();
 
 	void SpawnBullet(std::shared_ptr<Entity> entity);
 

@@ -1,20 +1,37 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Release\) contains files shared from another project (Circle Shooter.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Scene_Play.cpp
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(55,30): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(56,30): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,74): warning C4244: 'argument': conversion from 'const float' to 'T', possible loss of data
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,74): warning C4244:         with
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,74): warning C4244:         [
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,74): warning C4244:             T=unsigned int
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,74): warning C4244:         ]
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,51): warning C4244: 'argument': conversion from 'const float' to 'T', possible loss of data
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,51): warning C4244:         with
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,51): warning C4244:         [
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,51): warning C4244:             T=unsigned int
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(590,51): warning C4244:         ]
-C:\Users\yonat\source\repos\MegaMario\Scene_Play.cpp(645,39): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+  Animation.cpp
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,96): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,96): warning C4244:         with
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,96): warning C4244:         [
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,96): warning C4244:             T=int
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,96): warning C4244:         ]
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,86): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,86): warning C4244:         with
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,86): warning C4244:         [
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,86): warning C4244:             T=int
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,86): warning C4244:         ]
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,65): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,65): warning C4244:         with
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,65): warning C4244:         [
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,65): warning C4244:             T=int
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(23,65): warning C4244:         ]
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,97): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,97): warning C4244:         with
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,97): warning C4244:         [
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,97): warning C4244:             T=int
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,97): warning C4244:         ]
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,87): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,87): warning C4244:         with
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,87): warning C4244:         [
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,87): warning C4244:             T=int
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,87): warning C4244:         ]
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,66): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,66): warning C4244:         with
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,66): warning C4244:         [
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,66): warning C4244:             T=int
+C:\Users\yonat\source\repos\MegaMario\Animation.cpp(46,66): warning C4244:         ]
   Generating code
-  2 of 1173 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  4 of 1183 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code

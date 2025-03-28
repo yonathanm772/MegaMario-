@@ -132,6 +132,14 @@ void Scene_Play::loadLevel(const std::string& filename)
 				spawnPlayer();
 
 		}
+		else if (assetType == "Enemy") {
+			fin >> m_enemyConfig.X >> m_enemyConfig.Y >> m_enemyConfig.CX
+				>> m_enemyConfig.CY >> m_enemyConfig.SPEED >> m_playerConfig.MAXSPEED
+				>> m_enemyConfig.GRAVITY;
+
+				spawnEnemy();
+
+		}
 	}
 	fin.close();
 	std::cout << "Finished Loading From File" << "\n";
@@ -152,6 +160,19 @@ void Scene_Play::spawnPlayer()
 
 }
 
+void Scene_Play::spawnEnemy()
+{
+	std::cout << "Spawning Enemy:" << "\n";
+	//here is a sample player entity which you can use to construct other entities
+	auto entity = m_entityManager.addEntity("enemy");
+	entity->addComponent<CAnimation>(m_game->assets().getAnimation("GoombaWalk"), true);
+	entity->addComponent<CTransform>(gridToMidPixel(m_enemyConfig.X, m_enemyConfig.Y, entity), Vec2(m_enemyConfig.SPEED,0));
+	entity->addComponent<CBoundingBox>(Vec2(m_enemyConfig.CX, m_enemyConfig.CY));
+	entity->addComponent<CGravity>(m_enemyConfig.GRAVITY);
+	m_player->addComponent<CInput>();
+
+}
+
 void Scene_Play::SpawnBullet(std::shared_ptr<Entity> entity)
 {
 	std::cout << "Spawning Bullet:" << "\n";
@@ -167,7 +188,7 @@ void Scene_Play::SpawnBullet(std::shared_ptr<Entity> entity)
 		b->addComponent<CAnimation>(m_game->assets().getAnimation("Buster"), true);
 		b->addComponent<CTransform>(Vec2(transform.pos.x, transform.pos.y), Vec2(transform.scale.x * 10,0));
 		b->addComponent<CBoundingBox>(Vec2(boundingBox.size.x, boundingBox.size.y));
-
+		b->addComponent<CLifespan>(60,m_currentFrame);
 		b->getComponent<CTransform>().scale = transform.scale;
 
 	}
@@ -266,6 +287,8 @@ void Scene_Play::sMovement()
 	{
 		auto& transformE = e->getComponent<CTransform>();
 		auto& sprite = e->getComponent<CAnimation>().animation.getSprite();
+		auto& boundingBox = e->getComponent<CBoundingBox>();
+		float left = boundingBox.halfSize.x;
 		//float scaleX = std::abs(sprite.getScale().x);
 
 			if (transformE.velocity.x > 0 && transformE.scale.x != 1)//transformE.lastDirection != 1)
@@ -291,6 +314,30 @@ void Scene_Play::sMovement()
 				e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
 	
 			}
+			if (e->tag() == "player")
+			{
+				if (transformE.pos.x < boundingBox.halfSize.x)
+				{
+					transformE.pos.x = left;
+
+				}
+				if (transformE.pos.y > m_game->window().getView().getSize().y)
+				{
+					std::cout << "++++++++++FALLINNNNNNGGG++++++++++++\n";
+					e->destroy();
+					spawnPlayer();
+				}
+			}
+			if (e->tag() == "enemy")
+			{
+				if (transformE.pos.x < boundingBox.halfSize.x)
+				{
+					transformE.pos.x = left;
+					transformE.velocity.x *= -1;
+
+				}
+			}
+			
 
 		transformE.prevPos = transformE.pos;
 		transformE.pos += transformE.velocity;
@@ -301,6 +348,30 @@ void Scene_Play::sMovement()
 void Scene_Play::sLifespan()
 {
 	// TODO: Check lifespawn of entities that have them, and destroy them if the go over
+	// Loop through all entities
+	for (auto e : m_entityManager.getEntities())
+	{
+		auto& lifespan = e->getComponent<CLifespan>();
+		// Check if the entity has a lifespan component
+		if (lifespan.has)
+		{
+			m_player->getComponent<CInput>().canShoot = false;
+			// If lifespan is still remaining, decrease it
+			if (lifespan.lifespan > 0)
+			{
+				lifespan.lifespan -= 1;
+				std::cout << "REMAINING LIFESPAN: " << lifespan.lifespan << "\n";
+			}
+
+			// If lifespan has expired, deactivate the entity
+			if (lifespan.lifespan <= 0)
+			{
+				e->destroy();
+			}
+		}
+		else
+			m_player->getComponent<CInput>().canShoot = true;
+	}
 }
 
 void Scene_Play::sCollision()
@@ -350,8 +421,16 @@ void Scene_Play::sCollision()
 					{
 						transform.pos.y += overlap.y;
 						transform.velocity.y = 0;
+
 						t->getComponent<CAnimation>().repeat = false;
-						t->getComponent<CAnimation>().animation.hasEnded();
+						
+					}
+
+					if (t->getComponent<CAnimation>().animation.getName() == "Pole" ||
+						t->getComponent<CAnimation>().animation.getName() == "PoleTop")
+					{
+						e->destroy();
+						spawnPlayer();
 					}
 				}
 			}
@@ -362,34 +441,61 @@ void Scene_Play::sCollision()
 				state.state = "jumping";
 			}
 			// If the player is on the ground AND not moving, set the state to "standing"
-
-			std::cout << "**************CURRENT STATE**************\n";
-			std::cout << state.state << "\n";
 		}
 
 		if (e->tag() == "bullet")
 		{
-				for (auto t : m_entityManager.getEntities("tile"))
+				for (auto t : m_entityManager.getEntities())
 				{
 					Physics physics;
 					Vec2 overlap = physics.getOverlap(e, t);
 					if (overlap.x > 0 && overlap.y)
 					{
-						if (t->getComponent<CAnimation>().animation.getName() == "Brick")
+						if (t->tag() == "tile")
+						{
+
+							if (t->getComponent<CAnimation>().animation.getName() == "Brick")
+							{
+								t->destroy();
+							}
+							e->destroy();
+						}
+						else if (t->tag() == "enemy")
 						{
 							t->destroy();
+							e->destroy();
 						}
-						e->destroy();
 					}
-					//TODO: Implement bullet  / tile collision
-					//		Destroy the tile if it has a Brick animation
-					//TODO: Implement player / tile collisions and resolutions
-					//		Update the CState component of the player to store whether
-					//		it is currently on the ground or in the air. This will be 
-					//		used by the Animation system
-					//TODO: Check to see if the player has fallen down a hole (y >height())
-					//TODO: Don't let the player walk off the left side of the map
 				}
+		}
+
+		if (e->tag() == "enemy")
+		{
+			auto& transform = e->getComponent<CTransform>();
+			for (auto t : m_entityManager.getEntities("tile"))
+			{
+				Physics physics;
+				Vec2 overlap = physics.getOverlap(e, t);
+				Vec2 prevOverlap = physics.getPreviousOverlap(e, t);
+				if (overlap.x > 0 && overlap.y)
+				{
+					if (prevOverlap.y > 0 && transform.prevPos.x > t->getComponent<CTransform>().prevPos.x)
+					{
+						transform.pos.x += overlap.x;
+						transform.velocity.x *= -1;
+					}
+					else if (prevOverlap.y > 0 && transform.prevPos.x < t->getComponent<CTransform>().prevPos.x)
+					{
+						transform.pos.x -= overlap.x;
+						transform.velocity.x *= -1;
+					}
+					else if (prevOverlap.x > 0 && transform.prevPos.y < t->getComponent<CTransform>().prevPos.y)
+					{
+						transform.pos.y -= overlap.y;
+						transform.velocity.y = 0;
+					}
+				}
+			}
 		}
 
 	}
@@ -498,11 +604,6 @@ void Scene_Play::sAnimation()
 		{
 			currentAnimation = m_game->assets().getAnimation("Air");
 		}
-		//add the speed variable to the current frame
-		//std::cout << "FRAME COUNT BEFORE " << animation.animation.getFrameCount() << "\n";
-		//std::cout << "SPEED AFTER " << animation.animation.getSpeed() << "\n";
-		//std::cout << "TEXTURE SIZE X " << animation.animation.getSize().x << "\n";
-		//std::cout << "TEXTURE SIZE Y " << animation.animation.getSize().y << "\n";
 	}
 	else if (state.state == "running")
 	{
@@ -510,11 +611,6 @@ void Scene_Play::sAnimation()
 		{
 			currentAnimation = m_game->assets().getAnimation("Run");
 		}
-		//add the speed variable to the current frame
-		//std::cout << "FRAME COUNT BEFORE " << animation.animation.getFrameCount() << "\n";
-		//std::cout << "SPEED AFTER " << animation.animation.getSpeed() << "\n";
-		//std::cout << "TEXTURE SIZE X " << animation.animation.getSize().x << "\n";
-		//std::cout << "TEXTURE SIZE Y " << animation.animation.getSize().y << "\n";
 	}
 	else if(state.state == "standing")
 	{
@@ -534,11 +630,31 @@ void Scene_Play::sAnimation()
 				if (e->getComponent<CAnimation>().animation.getName() == "Question")
 				{
 					e->addComponent<CAnimation>(m_game->assets().getAnimation("Question2"), true);
+					// Spawn coin animation above the block
+					auto coin = m_entityManager.addEntity("coin");
+					coin->addComponent<CTransform>(e->getComponent<CTransform>().pos + Vec2(0, -64)); // Position coin above the block
+					coin->addComponent<CAnimation>(m_game->assets().getAnimation("Coin"), true);
+					coin->addComponent<CLifespan>(60, m_currentFrame); // Destroy the coin after 1 second
 				}
-				else
+				else if (e->getComponent<CAnimation>().animation.getName() == "Brick")
+				{
+					
+					auto explosion = m_entityManager.addEntity("explosion");
+					explosion->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), true);
+					explosion->addComponent<CTransform>(e->getComponent<CTransform>().pos); // Position coin above the block
+	
+					
+
+					//explosion->addComponent<CTransform>(gridToMidPixel(e->getComponent<CTransform>().pos.x,
+					//	e->getComponent<CTransform>().pos.y, explosion));
+					
 					e->destroy();
-				
-				
+					if (explosion->getComponent<CAnimation>().animation.hasEnded())
+					{
+						std::cout << "ANIMATION END?\n";
+						explosion->destroy();
+					}
+				}
 			}
 			else
 				e->getComponent<CAnimation>().animation.update();
@@ -663,5 +779,5 @@ void Scene_Play::sRender()
 	}
 	m_game->window().display();
 }
-// fix running, and jumpin along with their animations.
+// fix question tile animation
 
