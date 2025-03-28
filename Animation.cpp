@@ -96,4 +96,4 @@ sf::Sprite& Animation::getSprite()
 	return m_sprite;
 }
 
-// fix run animation appearing in the air only
+// 

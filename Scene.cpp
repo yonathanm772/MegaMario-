@@ -59,18 +59,6 @@ const ActionMap& Scene::getActionMap() const
 
 void Scene::drawLine(const Vec2& p1, const Vec2& p2)
 {
-	
-	/*std::cout << "Drawing line from (" << p1.x << ", " << p1.y << ") to (" << p2.x << ", " << p2.y << ")\n";
-	
-	sf::VertexArray line(sf::Lines, 2);  // SFML uses sf::Lines for a single line segment
-
-	line[0].position = sf::Vector2f(p1.x, p1.y);
-	line[0].color = sf::Color::White;  // Line color
-
-	line[1].position = sf::Vector2f(p2.x, p2.y);
-	line[1].color = sf::Color::White;  // Keep the same color
-
-	m_game->window().draw(line);  // Draw the line on the window*/
 	sf::Vertex line[] = { sf::Vector2f(p1.x,p1.y),sf::Vector2f(p2.x,p2.y) };
 	m_game->window().draw(line, 2, sf::Lines);
 }

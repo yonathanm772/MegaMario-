@@ -106,16 +106,6 @@ void GameEngine::sUserInput()
 			//look up the action and send the action to the scene
 			currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
 			
-			/*if (currentScene()->getActionMap().find(event.key.code) != currentScene()->getActionMap().end())
-			{
-				std::cout << "===============Current Scene: " << m_currentScene << "================\n";
-				//std::cout << "===================RUNNING=====================" << "\n";
-				currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
-			}
-			else
-			{
-				std::cout << "Key not found in action map: " << event.key.code << "\n";
-			}*/
 		}
 	}
 }

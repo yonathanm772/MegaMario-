@@ -59,7 +59,7 @@ void Scene_Menu::init()
 
 void Scene_Menu::update()
 {
-	if(m_hasEnded == false)
+	if(!m_hasEnded)
 	{
 		sRender();
 	}
@@ -68,6 +68,7 @@ void Scene_Menu::update()
 
 void Scene_Menu::onEnd()
 {
+	m_game->quit();
 	
 }
 

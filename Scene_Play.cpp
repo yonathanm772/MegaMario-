@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <iostream>
+#include "Scene_Menu.h"
 
 
 
@@ -201,20 +202,21 @@ void Scene_Play::update()
 {
 	m_entityManager.update();
 	//TODO: implement pause functionality
-	/*if (!m_paused)
+	if (!m_paused)
 	{
+		std::cout << "HERE\n";
 		sMovement();
 		sLifespan();
 		sCollision();
 		sAnimation();
 	}
-	sRender();*/
-
-	sMovement();
+	else if (m_paused) std::cout << "PAUSED\n";
+	sRender();
+	/*sMovement();
 	sLifespan();
 	sCollision();
 	sAnimation();
-	sRender();
+	sRender();*/
 
 }
 
@@ -435,6 +437,28 @@ void Scene_Play::sCollision()
 				}
 			}
 
+			for (auto g : m_entityManager.getEntities("enemy"))
+			{
+				Physics physics;
+				Vec2 overlap = physics.getOverlap(e, g);
+				Vec2 prevOverlap = physics.getPreviousOverlap(e, g);
+
+				if (overlap.x > 0 && overlap.y > 0)  // Ensure valid collision
+				{
+					isColliding = true;  // Player is colliding with at least one tile
+
+
+					if (prevOverlap.x > 0 && transform.prevPos.y < g->getComponent<CTransform>().prevPos.y)
+					{
+						g->destroy();
+					}
+					else
+					{
+						std::cout << "PLAYER DEATH\n";
+					}
+				}
+			}
+
 			// If the player is NOT colliding with anything, set the state to "jumping"
 			if (!isColliding)
 			{
@@ -511,10 +535,14 @@ void Scene_Play::sDoAction(const Action& action)
 	if (action.type() == "START")
 	{
 	
-			 if (action.name() == "TOGGLE_TEXTURE")		{ m_drawTextures = !m_drawTextures; }
-		else if (action.name() == "TOGGLE_COLLISION")	{ m_drawCollision = !m_drawCollision; }
-		else if (action.name() == "TOGGLE_GRID")		{ m_drawGrid = !m_drawGrid; }
-		else if (action.name() == "PAUSE")				{ setPaused(!m_paused); }
+		if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
+		else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
+		else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
+		else if (action.name() == "PAUSE") {
+			std::cout << "PAUSED?: " << m_paused << "\n";
+			m_paused = !m_paused;
+			std::cout << "PAUSED?: " << m_paused << "\n";
+		}
 		else if (action.name() == "QUIT")				{ onEnd(); }
 		else if (action.name() == "JUMP")
 		{
@@ -532,21 +560,12 @@ void Scene_Play::sDoAction(const Action& action)
 
 				m_player->getComponent<CInput>().left = true;
 				m_player->getComponent<CState>().isRunning = true;
-				/*if (m_player->getComponent<CState>().isGrounded)
-				{
-					m_player->getComponent<CState>().state = "running";
-				}*/
 		}
 		else if (action.name() == "RIGHT")
 		{	
 				 
 				 m_player->getComponent<CInput>().right = true;
 				 m_player->getComponent<CState>().isRunning = true;
-				 //m_player->getComponent<CState>().state = "air";
-				 /*if (m_player->getComponent<CState>().isGrounded)
-				 {
-					 m_player->getComponent<CState>().state = "running";
-				 }*/
 		}
 		else if (action.name() == "BUSTER")
 		{
@@ -569,19 +588,11 @@ void Scene_Play::sDoAction(const Action& action)
 		{
 			m_player->getComponent<CState>().isRunning = false;
 			m_player->getComponent<CInput>().left = false;
-			/*if (m_player->getComponent<CState>().isGrounded && !m_player->getComponent<CInput>().right)
-			{
-				m_player->getComponent<CState>().state = "standing";
-			}*/
 		}
 		else if (action.name() == "RIGHT")
 		{
 			m_player->getComponent<CState>().isRunning = false;
 			m_player->getComponent<CInput>().right = false;
-			/*if (m_player->getComponent<CState>().isGrounded && !m_player->getComponent<CInput>().left)
-			{
-				m_player->getComponent<CState>().state = "standing";
-			}*/
 		}
 		else if (action.name() == "BUSTER")
 		{
@@ -642,18 +653,16 @@ void Scene_Play::sAnimation()
 					auto explosion = m_entityManager.addEntity("explosion");
 					explosion->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), true);
 					explosion->addComponent<CTransform>(e->getComponent<CTransform>().pos); // Position coin above the block
-	
+					explosion->addComponent<CLifespan>(30, m_currentFrame);
 					
 
 					//explosion->addComponent<CTransform>(gridToMidPixel(e->getComponent<CTransform>().pos.x,
 					//	e->getComponent<CTransform>().pos.y, explosion));
 					
 					e->destroy();
-					if (explosion->getComponent<CAnimation>().animation.hasEnded())
-					{
-						std::cout << "ANIMATION END?\n";
-						explosion->destroy();
-					}
+					std::cout << "ANIMATION END?\n";
+					std::cout << explosion->getComponent<CAnimation>().animation.hasEnded() <<"\n";
+					
 				}
 			}
 			else
@@ -669,6 +678,7 @@ void Scene_Play::onEnd()
 {
 	//TODO: When the scene ends, change back to the meny scene
 	//		use m_game->changeScene(correct params);
+	m_game->changeScene("MENU", std::make_shared<Scene_Menu>(m_game), true);
 }
 
 void Scene_Play::sRender()
@@ -779,5 +789,5 @@ void Scene_Play::sRender()
 	}
 	m_game->window().display();
 }
-// fix question tile animation
+// fix explotion animation running forever
 
