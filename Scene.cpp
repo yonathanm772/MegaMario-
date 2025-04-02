@@ -19,12 +19,12 @@ Scene::Scene(GameEngine* game)
 
 void Scene::doAction(const Action& action)
 {	
-	std::cout << "===============DOING ACTION================\n";
 	sDoAction(action);
 }
 
 void Scene::simulate(const size_t frames)
 {
+	update();
 }
 
 void Scene::registerAction(int inputKey, const std::string& actionName)

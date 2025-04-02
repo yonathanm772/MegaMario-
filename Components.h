@@ -1,9 +1,5 @@
 #pragma once
 
-//#include "Vec2.h"
-//#include <SFML/Graphics.hpp>
-//#include <string>
-
 #include "Animation.h"
 #include "Assets.h"
 
@@ -12,6 +8,13 @@ class Component
 {
 public:
 		bool has = false;
+};
+
+class CDraggable : public Component
+{
+public:
+	bool dragging = false;
+	CDraggable() {}
 };
 
 // tells where an entity is and how fast its going, and at what angle

@@ -31,30 +31,26 @@ protected:
 	bool						m_drawGrid = false;
 	const Vec2					m_gridSize = { 64, 64 };
 	sf::Text					m_gridText;
+	Vec2						m_mPos;
+	sf::CircleShape				m_mouseShape;
 
 	void init(const std::string& levelPath);
 	Vec2 gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity);
-
 	void loadLevel(const std::string& filename);
-
 	void spawnPlayer();
-
 	void spawnEnemy();
-
 	void SpawnBullet(std::shared_ptr<Entity> entity);
+	void hitBlock(std::shared_ptr<Entity> entity);
 
+	Vec2 windowToWorld(const Vec2& window) const;
+
+	void sDragAndDrop();
 	void sMovement();
-
 	void sLifespan();
-
 	void sCollision();
-
 	void sDoAction(const Action& action);
-
 	void sAnimation();
-
 	void onEnd();
-
 	void sRender();
 public:
 	Scene_Play();

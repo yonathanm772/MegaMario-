@@ -60,7 +60,6 @@ bool Animation::hasEnded() const
 	//TODO: Detect when animation has ended (last frame was played) and return true
 	if (m_currentFrame >= m_frameCount - 1)
 	{
-		std::cout << "CURRENT FRAME?\n";
 		return true;
 	}
 	else

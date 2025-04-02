@@ -59,10 +59,7 @@ void Scene_Menu::init()
 
 void Scene_Menu::update()
 {
-	if(!m_hasEnded)
-	{
-		sRender();
-	}
+
 }
 
 
@@ -122,8 +119,6 @@ void Scene_Menu::sRender()
 	{
 		m_game->window().draw(text);
 	}
-
-	m_game->window().display();
 
 	// changing scenes https://github.com/eXpl0it3r/SmallGameEngine/blob/master/src/MenuState.cpp
 }

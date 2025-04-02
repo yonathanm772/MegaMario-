@@ -22,16 +22,14 @@ void GameEngine::init(const std::string& path)
 
 void GameEngine::update()
 {
-	if (m_sceneMap.find(m_currentScene) != m_sceneMap.end())
-	{
-		m_sceneMap[m_currentScene]->update();
+	if (!isRunning()) { return;}
 
-		sUserInput();
-	}
-	else
-	{
-		std::cout << "ERROR: Scene not found in map!\n";
-	}
+	if (m_sceneMap.empty()) { return; }
+
+	sUserInput();
+	currentScene()->simulate(m_simulationSpeed);
+	currentScene()->sRender();
+	m_window.display();
 }
 
 std::shared_ptr<Scene> GameEngine::currentScene()
@@ -107,6 +105,35 @@ void GameEngine::sUserInput()
 			currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
 			
 		}
+		auto mousePos = sf::Mouse::getPosition(m_window);
+		Vec2 mpos(mousePos.x, mousePos.y);
+
+		if (event.type == sf::Event::MouseButtonPressed)
+		{
+			switch (event.mouseButton.button)
+			{
+				case sf::Mouse::Left: {currentScene()->doAction(Action("LEFT_CLICK",	 "START", mpos)); break; }
+				case sf::Mouse::Middle: {currentScene()->doAction(Action("MIDDLE_CLICK", "START", mpos)); break; }
+				case sf::Mouse::Right: {currentScene()->doAction(Action("RIGHT_CLICK",   "START", mpos)); break; }
+				default: break;
+			}
+		}
+
+		if (event.type == sf::Event::MouseButtonReleased)
+		{
+			switch (event.mouseButton.button)
+			{
+			case sf::Mouse::Left: {currentScene()->doAction(Action("LEFT_CLICK", "END", mpos)); break; }
+			case sf::Mouse::Middle: {currentScene()->doAction(Action("MIDDLE_CLICK", "END", mpos)); break; }
+			case sf::Mouse::Right: {currentScene()->doAction(Action("RIGHT_CLICK", "END", mpos)); break; }
+			default: break;
+			}
+		}
+
+		if (event.type == sf::Event::MouseMoved)
+		{
+			currentScene()->doAction(Action("MOUSE_MOVE", "START", Vec2(event.mouseMove.x, event.mouseMove.y)));
+		}
 	}
 }
 
@@ -116,30 +143,21 @@ void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene
 	std::cout << "Changing Scenes" << "\n";
 	if (scene)
 	{
-		// If endCurrentScene is true, remove the current scene
-		if (endCurrentScene && !m_sceneMap.empty())
-		{
-			std::cout << "Deleting Scene " << m_currentScene << "\n";
-
-			m_sceneMap.erase(m_currentScene);  // Remove current scene
-		}
-
 		m_sceneMap[sceneName] = scene;
-		// Set the new scene as the active scene
-		m_currentScene = sceneName;
-
-		// Add the new scene to the scene map
-		
-		//std::cout << "Deleting Scene" << m_sceneMap[sceneName].get() << "\n";
-
-		
-		std::cout << "Changed scenes to " << m_currentScene << "\n";
 	}
 	else
 	{
-		std::cerr << "Error: Tried to change to a null scene!" << std::endl;
+		if (m_sceneMap.find(sceneName) == m_sceneMap.end())
+		{
+			std::cerr << "Error: Scene does not exist: " << sceneName <<std::endl;
+		}
 	}
 
+	if (endCurrentScene)
+	{
+		m_sceneMap.erase(m_sceneMap.find(m_currentScene));  // Remove current scene
+	}
+	m_currentScene = sceneName;
 }
 
 void GameEngine::quit()
