@@ -9,6 +9,8 @@
 #include <iostream>
 #include "Scene_Menu.h"
 
+#include "Profiler.hpp"
+
 bool IsInside(Vec2 pos, std::shared_ptr<Entity> e)
 {
 	auto ePos = e->getComponent<CTransform>().pos;
@@ -43,6 +45,7 @@ Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
 
 void Scene_Play::init(const std::string& levelPath)
 {
+	PROFILE_FUNCTION();
 	registerAction(sf::Keyboard::P, "PAUSE");
 	registerAction(sf::Keyboard::Escape, "QUIT");
 	registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");
@@ -84,7 +87,7 @@ Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity
 
 void Scene_Play::loadLevel(const std::string& filename)
 {
-
+	PROFILE_FUNCTION();
 	m_entityManager = EntityManager();
 	//TODO: read in the level file and add the appropriate entities
 	//		use the PlayerConfig Struct m_playerConfig to store player properties
@@ -224,6 +227,7 @@ void Scene_Play::hitBlock(std::shared_ptr<Entity> entity)
 
 void Scene_Play::update()
 {
+	PROFILE_FUNCTION();
 	m_entityManager.update();
 	//TODO: implement pause functionality
 	if (!m_paused)
@@ -240,6 +244,7 @@ void Scene_Play::update()
 
 void Scene_Play::sMovement()
 {
+	PROFILE_FUNCTION();
 	auto& input = m_player->getComponent<CInput>();
 	auto& transform = m_player->getComponent<CTransform>();
 	auto& state = m_player->getComponent<CState>();
@@ -351,6 +356,7 @@ void Scene_Play::sMovement()
 
 void Scene_Play::sLifespan()
 {
+	PROFILE_FUNCTION();
 	// TODO: Check lifespawn of entities that have them, and destroy them if the go over
 	// Loop through all entities
 	//auto bullets = m_entityManager.getEntities("bullet");
@@ -381,6 +387,7 @@ void Scene_Play::sLifespan()
 
 void Scene_Play::sCollision()
 {
+	PROFILE_FUNCTION();
 	auto& tiles = m_entityManager.getEntities("tile");
 	auto& bullets = m_entityManager.getEntities("bullet");
 
@@ -491,6 +498,7 @@ void Scene_Play::sCollision()
 
 void Scene_Play::sDoAction(const Action& action)
 {
+	PROFILE_FUNCTION();
 	
 	if (action.type() == "START")
 	{
@@ -590,6 +598,7 @@ void Scene_Play::sDoAction(const Action& action)
 
 void Scene_Play::sDragAndDrop()
 {
+	PROFILE_FUNCTION();
 	for (auto e : m_entityManager.getEntities())
 	{
 		if (e->hasComponent<CDraggable>() && e->getComponent<CDraggable>().dragging)
@@ -602,6 +611,7 @@ void Scene_Play::sDragAndDrop()
 
 void Scene_Play::sAnimation()
 { 
+	PROFILE_FUNCTION();
 	// Store the current scale
 	auto& currentAnimation = m_player->getComponent<CAnimation>().animation;
 	auto& state = m_player->getComponent<CState>();
@@ -665,6 +675,7 @@ void Scene_Play::onEnd()
 
 void Scene_Play::sRender()
 {
+	PROFILE_FUNCTION();
 
 	// color the background darker so you know that the game is paused
 	if (!m_paused)

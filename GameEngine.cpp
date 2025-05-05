@@ -2,34 +2,55 @@
 #include "Assets.h"
 #include "Scene_Play.h"
 #include "Scene_Menu.h"
-
+#include "Profiler.hpp"
 #include <iostream>
 
 GameEngine::GameEngine(const std::string& path)
 {
+	PROFILE_FUNCTION();
 	init(path);
 }
 void GameEngine::init(const std::string& path)
 {
-	
-	m_assets.loadFromFile(path);
+	PROFILE_FUNCTION();
 
-	m_window.create(sf::VideoMode(1280, 786), "Definetely Not Mario");
-	m_window.setFramerateLimit(60);
+
+	{
+		PROFILE_SCOPE("Load Assets");
+		m_assets.loadFromFile(path);
+	}
+
+	{
+		PROFILE_SCOPE("SFML Window");
+		m_window.create(sf::VideoMode(1280, 786), "Definetely Not Mario");
+		m_window.setFramerateLimit(60);
+	}
 
 	changeScene("MENU", std::make_shared<Scene_Menu>(this));
 }
 
 void GameEngine::update()
 {
+	PROFILE_FUNCTION();
 	if (!isRunning()) { return;}
 
 	if (m_sceneMap.empty()) { return; }
 
 	sUserInput();
-	currentScene()->simulate(m_simulationSpeed);
-	currentScene()->sRender();
-	m_window.display();
+	{
+		PROFILE_SCOPE("Simulate");
+		currentScene()->simulate(m_simulationSpeed);
+	}
+
+	{
+		PROFILE_SCOPE("Render");
+		currentScene()->sRender();
+	}
+
+	{
+		PROFILE_SCOPE("SFML Waiting");
+		m_window.display();
+	}
 }
 
 std::shared_ptr<Scene> GameEngine::currentScene()
@@ -62,7 +83,7 @@ void GameEngine::run()
 
 void GameEngine::sUserInput()
 {	
-	
+	PROFILE_FUNCTION();
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <fstream>
+#include "Profiler.hpp"
 
 
 Assets::Assets()
@@ -16,22 +17,26 @@ Assets::~Assets()
 
 void Assets::addTexture(std::string& name, std::string& path, bool wantRepeated)
 {
+    PROFILE_SCOPE("AddTexture: " + path);
     sf::Texture texture;
 
     if (texture.loadFromFile(path))
     {
         texture.setRepeated(wantRepeated);
+        texture.setSmooth(true);
         this->m_texturesMap[name] = texture;
     }
 }
 
 void Assets::addAnimation(std::string& name, const std::string& texture, const size_t& frames, const size_t& speed)
 {
-    this->m_animationsMap[name] = Animation(name, m_texturesMap.at(texture),frames, speed);
+    PROFILE_FUNCTION();
+    this->m_animationsMap[name] = Animation(name, getTexture(texture), frames, speed);
 }
 
 void Assets::addFont(std::string& name, std::string& path)
 {
+    PROFILE_SCOPE("AddFont: " + path);
     sf::Font font;
 
     if (font.loadFromFile(path))
@@ -58,7 +63,7 @@ const sf::Font& Assets::getFont(std::string name) const
 void Assets::loadFromFile(const std::string& path)
 {
     // Reads in config file here
-    
+    PROFILE_FUNCTION();
     std::cout << "Loading From File" << "\n";
 
     std::ifstream fin(path);
@@ -72,13 +77,7 @@ void Assets::loadFromFile(const std::string& path)
         fin >> assetType;
         if (assetType == "Texture") {
             fin >> asset >> assetPath;
-            
-            sf::Texture texture;
-            if (!texture.loadFromFile(assetPath))
-            {
-                std::cout << "ERROR LOADING TEXTURE" << std::endl;
-            }
-            m_texturesMap.insert({ asset,texture });
+            addTexture(asset, assetPath);
             std::cout << "Loaded Textures:" << assetPath << "\n";
             
         }
@@ -92,12 +91,7 @@ void Assets::loadFromFile(const std::string& path)
         else if (assetType == "Font") {
             fin >> asset >> assetPath;
 
-            sf::Font font;
-            if (!font.loadFromFile(assetPath))
-            {
-                std::cout << "ERROR LOADING TEXTURE" << std::endl;
-            }
-            m_fontsMap.insert({ asset,font });
+            addFont(asset, assetPath);
             std::cout << "Loaded Font:" << assetPath << "\n";
 
  

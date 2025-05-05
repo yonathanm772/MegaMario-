@@ -1,7 +1,7 @@
 #include "EntityManager.h"
 #include "Entity.h"
 #include <iostream>
-
+#include "Profiler.hpp"
 
 EntityManager::EntityManager()
 {
@@ -9,7 +9,7 @@ EntityManager::EntityManager()
 
 void EntityManager::update()
 {
-
+	PROFILE_FUNCTION();
 	//  Adss entities from m_entitiesToAdd the proper location(s)
 	//	add them to the vector of all entities
 	//	add them to the vector inside the map, with the tag as a key
